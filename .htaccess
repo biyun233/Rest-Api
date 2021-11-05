@@ -1,1 +1,9 @@
+# Only for Apache web server
 php_flag display_errors on
+
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteCond %{REQUEST_FILENAME} !-f 
+
+
+RewriteRule ^task controller/task.php
