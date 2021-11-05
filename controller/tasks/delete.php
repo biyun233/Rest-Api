@@ -1,6 +1,7 @@
 <?php
 
-require_once 'conn.php';
+require_once '../conn.php';
+require '../../model/Response.php';
 
 if(array_key_exists("taskid", $_GET)) {
   $taskid = $_GET['taskid'];
