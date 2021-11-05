@@ -15,6 +15,7 @@
         $this->setData($data);
       }
       $this->send();
+      exit;
     }
 
     public function setOk($ok) {
