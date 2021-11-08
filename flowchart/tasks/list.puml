@@ -1,0 +1,44 @@
+@startuml
+start
+if(database connect) then (false)
+  :Error 500;
+  kill
+else (true)
+  if(REQUEST_METHOD === GET) then (false)
+    :Error 405;
+    kill
+  else (true)
+    if(exist('page', $_GET)) then (false)
+      :Error 400;
+      kill
+    else (true) 
+      if(page == '' || page not numeric) then (true)
+        :Error 400;
+        kill
+      else (false)
+        :get and verify params;
+        if(param is valid) then (false)
+          :Error 400;
+          kill
+        else (true)
+          :prepare where clause;
+          :get totalNo with where clause (if not null);
+          if(catch database error) then (true)
+            :Error 500;
+            kill
+          else (false)
+            :calculate totalPage;
+            if(page > totalPage || page < 0) then (true)
+              :Error 404;
+              kill
+            else (false)
+              :calculate offset and limit;
+              :prepare query with param, offset, limit;
+              :get data from database;
+              if(catch database error) then (true)
+                :Error 500;
+                kill
+              else (false)
+                :return data, Code 200;
+                end
+@enduml
