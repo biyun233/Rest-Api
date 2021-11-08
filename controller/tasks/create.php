@@ -51,8 +51,19 @@ try {
 
   $rowCount = $query->rowCount();
   if($rowCount === 0) {
-    new Response(false, 404, 'Failed to retrive task task');
+    new Response(false, 404, 'Failed to retrive task after creation');
   }
+
+  $taskArray = array();
+  while($row = $query->fetch(PDO::FETCH_ASSOC)) {
+    $task = new Task($row['id'], $row['title'], $row['description'], $row['deadline'], $row['completed']);
+    $taskArray[] = $task->returnTaskAsArray();
+  }
+
+  $returnData = array();
+  $returnData['rows_returned'] = $rowCount;
+  $returnData['tasks'] = $taskArray;
+  new Response(true, 201, 'Task created', $returnData);
 
 } catch(TaskException $ex) {
   new Response(false, 500, $ex->getMessage());

@@ -1,0 +1,44 @@
+@startuml
+start
+if(database connect) then (false)
+  :Error 500;
+  kill
+else (true)
+  if(REQUEST_METHOD === POST) then (false)
+    :Error 405;
+    kill
+  else (true)
+    if(CONTENT_TYPE === 'application/json') then (false)
+      :Error 400;
+      kill
+    else (true)
+      :get input content;
+      :json decode content;
+      if(content is not valid json) then (true)
+        :Error 400;
+        kill
+      else (false)
+        if(title or completed is not included) then (true)
+          :Error 400;
+          kill
+        else (false)
+          :create new task;
+          :insert task into database;
+          if(catch database error) then (true)
+            :Error 500;
+            kill
+          else (false)
+            if(rowCount == 0) then (true)
+              :Error 500;
+              kill
+            else (false)
+              :get insertedId;
+              :get task from database with insertedId;
+              if(catch database error) then (true)
+                :Error 500;
+                kill
+              else (false)
+                :return data, Code 200;
+                end
+
+@enduml
