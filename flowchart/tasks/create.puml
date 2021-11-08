@@ -29,7 +29,7 @@ else (true)
             kill
           else (false)
             if(rowCount == 0) then (true)
-              :Error 500;
+              :Error 404;
               kill
             else (false)
               :get insertedId;
@@ -38,7 +38,7 @@ else (true)
                 :Error 500;
                 kill
               else (false)
-                :return data, Code 200;
+                :return data, Code 201;
                 end
 
 @enduml

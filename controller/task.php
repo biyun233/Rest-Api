@@ -4,8 +4,9 @@ require_once '../model/Response.php';
 require_once '../model/Task.php';
 require_once 'conn.php';
 
-
-if(array_key_exists("taskid", $_GET)) {
+if(!array_key_exists("taskid", $_GET)) {
+  new Response(false, 400, 'Task Id is demanded');
+} else {
   $taskid = $_GET['taskid'];
 
   if($taskid == '' || !is_numeric($taskid)) {

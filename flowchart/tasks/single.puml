@@ -4,28 +4,32 @@ if(database connect) then (false)
   :Error 500;
   kill
 else (true)
-  if(param == '' || not numeric) then (true)
+  if(param not included taskid) then (true)
     :Error 400;
     kill
   else (false)
-    if(REQUEST_METHOD === GET) then (false)
-      :Error 405;
+    if(param == '' || not numeric) then (true)
+      :Error 400;
       kill
-    else (true)
-      :try get data from database;
-      if(catch database error) then (true)
-        :Error 500;
+    else (false)
+      if(REQUEST_METHOD === GET) then (false)
+        :Error 405;
         kill
-      else (false)
-        if(data is empty) then (true)
-          :Error 404;
+      else (true)
+        :try get data from database;
+        if(catch database error) then (true)
+          :Error 500;
           kill
-        else
-          :try treate data;
-          if(catch data exception) then (true)
-            :Error 500;
+        else (false)
+          if(data is empty) then (true)
+            :Error 404;
             kill
-          else (false)
-            :return data, Code 200;
-            end
+          else
+            :try treate data;
+            if(catch data exception) then (true)
+              :Error 500;
+              kill
+            else (false)
+              :return data, Code 200;
+              end
 @enduml()
