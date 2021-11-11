@@ -1,0 +1,31 @@
+@startuml
+start
+if(database connect) then (false)
+  :Error 500;
+  kill
+else (true)
+  if(REQUEST_METHOD === GET) then (false)
+    :Error 405;
+    kill
+  else (true)
+    if(param not included session_id) then (true)
+      :Error 400;
+      kill
+    else (false)
+      if(param == '' || not numeric) then (true)
+        :Error 400;
+        kill
+      else (false)
+        if(HTTP_AUTHORIZATION is valid) then (false)
+          :Error 401;
+          kill
+        else (true)
+          :accesstoken = SERVER['HTTP_AUTHORIZATION'];
+          :delete session with accesstoken from database;
+          if(deleteRow == 0) then (true)
+            :Error 400;
+            kill
+          else (false)
+            :return data, 200;
+            end
+@enduml

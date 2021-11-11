@@ -1,0 +1,41 @@
+@startuml
+start
+if(database connect) then (false)
+  :Error 500;
+  kill
+else (true)
+  if(REQUEST_METHOD === POST) then (false)
+    :Error 405;
+    kill
+  else (true)
+    if(CONTENT_TYPE === 'application/json') then (false)
+      :Error 400;
+      kill
+    else (true)
+      :get input content;
+      :json decode content;
+      if(content is not valid json) then (true)
+        :Error 400;
+        kill
+      else (false)
+        if(param not include fullname, username, password) then (true)
+          :Error 400;
+          kill
+        else (false)
+          if(param is not valid) then (true)
+            :Error 400;
+            kill
+          else (false)
+            if(user already exists) then (true)
+              :Error 409;
+              kill
+            else (false)
+              :hash password;
+              :insert user into database;
+              if(insertRow == 0) then (true)
+                :Error 500;
+                kill
+              else (false)
+                :201, user created;
+                end
+@enduml

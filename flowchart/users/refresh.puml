@@ -1,0 +1,67 @@
+@startuml
+start
+if(database connect) then (false)
+  :Error 500;
+  kill
+else (true)
+  if(REQUEST_METHOD === POST) then (false)
+    :Error 405;
+    kill
+  else (true)
+    if(param not included session_id) then (true)
+      :Error 400;
+      kill
+    else (false)
+      if(param == '' || not numeric) then (true)
+        :Error 400;
+        kill
+      else (false)
+        if(HTTP_AUTHORIZATION is valid) then (false)
+          :Error 401;
+          kill
+        else (true)
+          :accesstoken = SERVER['HTTP_AUTHORIZATION'];
+          if(CONTENT_TYPE === 'application/json') then (false)
+            :Error 400;
+            kill
+          else (true)
+            :get input content;
+            :json decode content;
+            if(content is not valid json) then (true)
+              :Error 400;
+              kill
+            else (false)
+              if(param not include refresh_token || param is not valid) then (true)
+                :Error 400;
+                kill
+              else (false)
+                :select session with id, accesstoken, refreshtoken;
+                if(session not exists) then (true)
+                  :Error 401;
+                  kill
+                else (false)
+                  if(user not active) then (true)
+                    :Error 401;
+                    kill
+                  else (false)
+                    if(login attempt >= 3 \n login attempts default 0) then (true)
+                      :Error 401;
+                      kill
+                    else (false)
+                      if(refreshtoken is expired) then (true)
+                        :Error 401;
+                        kill
+                      else (false)
+                        :generate accesstoken and refreshtoken;
+                        :update session with new token into database;
+                        if(query catch exception) then (true)
+                          :Error 500;
+                          kill
+                        elseif (updateRow == 0) then (true)
+                          :Error 401;
+                          kill
+                        else (false)
+                          :return data, 200;
+                          end
+                    
+@enduml

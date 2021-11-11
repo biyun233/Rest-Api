@@ -1,0 +1,60 @@
+@startuml
+start
+if(database connect) then (false)
+  :Error 500;
+  kill
+else (true)
+  if(REQUEST_METHOD === POST) then (false)
+    :Error 405;
+    kill
+  else (true)
+    :sleep 1s;
+    if(CONTENT_TYPE === 'application/json') then (false)
+      :Error 400;
+      kill
+    else (true)
+      :get input content;
+      :json decode content;
+      if(content is not valid json) then (true)
+        :Error 400;
+        kill
+      else (false)
+        if(param not include username, password) then (true)
+          :Error 400;
+          kill
+        else (false)
+          if(param is not valid) then (true)
+            :Error 400;
+            kill
+          else (false)
+            if(user not exists) then (true)
+              :Error 401;
+              kill
+            else (false)
+              if(user not active) then (true)
+                :Error 401;
+                kill
+              else (false)
+                if(login attempt >= 3 \n login attempts default 0) then (true)
+                  :Error 401;
+                  kill
+                else (false)
+                  if(password incorrect) then (true)
+                    :loginattempt ++;
+                    :Error 401;
+                    kill
+                  else (false)
+                    :generate accesstoken and refreshtoken;
+                    :database begin transaction;
+                    :set loginattempt = 0;
+                    :insert session with token into database;
+                    if(query catch exception) then (true)
+                      :database roll back;
+                      :Error 500;
+                      kill
+                    else (false)
+                      :database commit;
+                      :return data, 201;
+                      end
+                    
+@enduml
